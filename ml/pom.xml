@@ -23,6 +23,7 @@
 
         <modules>
         	<module>ml-ri</module>
+        	<module>ml-scikit-learn</module>
         </modules>
 
 </project>
