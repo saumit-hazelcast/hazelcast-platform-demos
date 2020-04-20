@@ -11,10 +11,10 @@
         </parent>
 
 	<groupId>com.hazelcast.platform.demos.ml.sklearn</groupId>
-        <artifactId>ml-scikit-learn-root</artifactId>
+        <artifactId>ml-sklearn-root</artifactId>
         <packaging>pom</packaging>
 
-        <name>Hazelcast Platform - ML - SKLearn</name>
+        <name>Hazelcast Platform - ML - SciKit Learn</name>
         <description>Scikit Learn (sklearn) demonstration</description>
 
         <properties>
@@ -24,6 +24,12 @@
         </properties>
 
         <modules>
+		<module>check-for-python</module>
+		<module>python-model-offline</module>
+		<module>offline-trainer</module>
+<!--
+		<module>python-model-runtime</module>
+-->
         </modules>
 
 </project>
