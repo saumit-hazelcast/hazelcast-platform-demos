@@ -1,0 +1,119 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.hazelcast.platform.demos.ml.sklearn</groupId>
+		<artifactId>ml-sklearn-root</artifactId>
+		<version>4.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>ml-sklearn-check-for-python</artifactId>
+
+	<name>Hazelcast Platform - ML - SKLearn - Python Check</name>
+	<description>Scikit Learn - Determine if Python executable present</description>
+
+	<properties>
+		<main.basedir>${project.parent.parent.parent.basedir}</main.basedir>
+		<my.neil.property>true</my.neil.property>
+		<test.python3.filename>${project.build.outputDirectory}/which.python3</test.python3.filename>
+	</properties>
+
+	<build>
+       	<extensions>
+       		<!-- Sets "${os.detected.name}", eg. "osx" for Mac -->
+			<extension>
+            	<groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+            </extension>
+		</extensions>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<!-- default, package phase -->
+						<configuration>
+							<target>
+								<echo message="====================================" />
+								<echo message="$$python3.not.available == ${python3.not.available}" />
+								<echo message="====================================" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Fails safe if Windows, but can there be a Windows version of "which" -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test-for-python3-unix</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>which</executable>
+							<arguments>
+								<argument>python3</argument>
+							</arguments>
+							<!-- In target/classes, file is clobbered on each run -->
+							<outputFile>${test.python3.filename}</outputFile>
+							<successCodes>0,1</successCodes>
+							<workingDirectory>${project.build.outputDirectory}</workingDirectory>
+						</configuration>
+					</execution>
+					<!-- Executions for other architectures goes here -->
+				</executions>
+			</plugin>
+			<!-- Test that one exec-maven-plugin run produced output -->
+			<plugin>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+          			<execution>
+            			<id>enforce-test-for-python3-output-file-exists</id>
+						<phase>process-resources</phase>
+            			<goals>
+              				<goal>enforce</goal>
+            			</goals>
+            			<configuration>
+              				<rules>
+                				<requireFilesExist>
+                  					<files>
+                   						<file>${test.python3.filename}</file>
+					                </files>
+                				</requireFilesExist>
+              				</rules>
+            			</configuration>
+          			</execution>
+        		</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test-for-python3-file-output</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>bsh-property</goal>
+						</goals>
+						<configuration>
+							<properties>
+								<property>python3.not.available</property>
+							</properties>
+							<source>
+								java.io.File file = new java.io.File("${test.python3.filename}");
+								python3.not.available = (file.length() == 0);
+							</source>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

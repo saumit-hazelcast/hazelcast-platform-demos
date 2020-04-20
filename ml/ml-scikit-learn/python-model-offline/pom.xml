@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.hazelcast.platform.demos.ml.sklearn</groupId>
+		<artifactId>ml-sklearn-root</artifactId>
+		<version>4.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>ml-sklearn-python-model-offline</artifactId>
+
+	<name>Hazelcast Platform - ML - SKLearn - Python Offline</name>
+	<description>Scikit Learn - Python model for offline training</description>
+
+	<properties>
+		<main.basedir>${project.parent.parent.parent.basedir}</main.basedir>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ml-sklearn-check-for-python</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+</project>

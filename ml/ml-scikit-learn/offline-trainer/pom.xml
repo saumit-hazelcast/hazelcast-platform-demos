@@ -1,0 +1,141 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.hazelcast.platform.demos.ml.sklearn</groupId>
+		<artifactId>ml-sklearn-root</artifactId>
+		<version>4.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>ml-sklearn-offline-trainer</artifactId>
+
+	<name>Hazelcast Platform - ML - SKLearn - Offline Trainer</name>
+	<description>Scikit Learn - Python training harness</description>
+
+
+	<properties>
+		<main.basedir>${project.parent.parent.parent.basedir}</main.basedir>
+		<my.trained.output.directory>output</my.trained.output.directory>
+		<test.python3.filename>${project.build.directory}/generated-resources/which.python3</test.python3.filename>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ml-sklearn-python-model-offline</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<!-- Python doesn't cope if outputs folder present in target -->
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${my.trained.output.directory}</directory>
+						</fileset>
+					</filesets>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<includes>**/which.python3,inputs/*,ai_inputs/*,**/*.py,requirements.txt</includes>
+							<outputDirectory>${project.build.directory}/generated-resources</outputDirectory>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test-for-python3-file-output</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>bsh-property</goal>
+						</goals>
+						<configuration>
+							<properties>
+								<property>python3.not.available</property>
+							</properties>
+							<source>
+								java.io.File file = new
+								java.io.File("${test.python3.filename}");
+								python3.not.available =
+								(file.length() == 0);
+							</source>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>python3-missing</id>
+						<configuration>
+							<target if="${python3.not.available}">
+								<echo message="====================================" />
+								<echo
+									message="$$python3.not.available=${python3.not.available}" />
+								<echo message="Skipping model training" />
+								<echo message="====================================" />
+							</target>
+						</configuration>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<configuration>
+					<skip>${python3.not.available}</skip>
+					<executable>python3</executable>
+					<arguments>
+						<argument>example_1_training.py</argument>
+						<argument>inputs/income.data.txt</argument>
+						<argument>ai_inputs</argument>
+						<argument>${my.trained.output.directory}</argument>
+					</arguments>
+					<sourceRoot>${project.build.directory}/generated-resources/${my.trained.output.directory}</sourceRoot>
+					<workingDirectory>${project.build.directory}/generated-resources</workingDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
